@@ -1,5 +1,13 @@
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+// customize able dimensions
+ctx.canvas.width  = 10;
+ctx.canvas.height = 10;
+
+var datasetLength = 10;
+var datasetDownloadType = "zip"
+
 var ox = canvas.width / 2;
 var oy = canvas.height / 2;
 ctx.font = "42px serif";
@@ -8,6 +16,10 @@ ctx.textBaseline = "middle";
 ctx.fillStyle = "#800";
 
 var arr = new Array();
+
+var csv = "";
+
+
 
 class CircleModel {
     distortion = 0;
@@ -65,7 +77,7 @@ async function SquareGenerator(){
     let randomColor = "#"+Math.floor(Math.random()*16777215).toString(16);
     o.color = randomColor;                //`rgb(${getRndInteger(0,255)},${color.g},${color.b})`
 
-    console.log("hi");
+    //console.log("hi");
     drawRect(o.vertex.x, o.vertex.y, o.vertex.z, o.vertex.z, o.color);       //draw the square
 
     o.imageBlob = await new Promise(resolve => canvas.toBlob(resolve));
@@ -75,36 +87,88 @@ async function SquareGenerator(){
 async function ProduceIterations(generators){
     console.log(generators);
 
-    for(var i=0;i<10; i++){
+    for(var i=0;i<datasetLength; i++){
         let generator = generators[getRndInteger(0,generators.length-1)]
         clearCanvas();
         let object = await generator();
+        object.RGBAdata = ctx.getImageData(0,0,canvas.width,canvas.height);
         //console.log(imageBlob)
         arr.push(object);
     }
 }
 async function DownloadDataset() {
-    var zip = new JSZip();
 
-    // make the folder
-    for (var i=0; i<arr.length; i++){
-       
-        zip.file(`image/image${i}.png`, arr[i].imageBlob);
-        zip.file(`label/label${i}.txt`, arr[i].constructor.name);
-    }
+    type = datasetDownloadType;
+    switch (type){
+        
+        case "zip":
+            var zip = new JSZip();
 
-    //saving the file
-    zip.generateAsync({ type: 'blob'})
-    .then(function(content){
-        saveAs(content,"dataset.zip");
-    })
+            // make the folder
+            for (var i=0; i<arr.length; i++){
+            
+                zip.file(`image/image${i}.png`, arr[i].imageBlob);
+                zip.file(`label/label${i}.txt`, arr[i].constructor.name);
+            }
+            //saving the file
+            zip.generateAsync({ type: 'blob'})
+            .then(function(content){
+                saveAs(content,"dataset.zip");
+            })
+            break;
+
+        case "csv":
+            console.log("hi");
+            
+
+            //csv labels
+            let rgb = ["r","g","b","a"]
+            for (var i=0; i<canvas.width*4*canvas.height; i++){
+
+                //garbage to make labels look nice over here
+                let a = Math.floor(i/(canvas.width*4))
+                csv += rgb[i%4] + " " + Math.floor(i/4)%(canvas.width) + "x"+ a + ", "
+            }
+            csv += '\n'
+
+            //csv content
+            for (var i=0; i<arr.length; i++){
+
+                //one shape img
+                for (var j=0; j<arr[i].RGBAdata.data.length; j++){
+                    csv += arr[i].RGBAdata.data[j] + ", "
+                   
+                }
+                csv += '\n';
+            }
+            // var fileReader = new FileReader();
+            // fileReader.onload = function(event) {
+            //     arrayBuffer = event.target.result;
+            // };
+            // fileReader.readAsArrayBuffer(arr[0].imageBlob);
+            download("dataset.csv",csv);
+            console.log(csv)
+        }
 }
+
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+  
+    element.style.display = 'none';
+    document.body.appendChild(element);
+  
+    element.click();
+  
+    document.body.removeChild(element);
+  }
 
 setUp();
 async function setUp()
 {
     await ProduceIterations([Circle_Generator,SquareGenerator])
-    await DownloadDataset();
+    //await DownloadDataset("csv");
 
    // SquareGenerator();
 }
