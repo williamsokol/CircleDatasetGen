@@ -2,8 +2,8 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 // customize able dimensions
-ctx.canvas.width  = 10;
-ctx.canvas.height = 10;
+ctx.canvas.width  = 500;
+ctx.canvas.height = 500;
 
 var datasetLength = 10;
 var datasetDownloadType = "zip"
@@ -16,7 +16,6 @@ ctx.textBaseline = "middle";
 ctx.fillStyle = "#800";
 
 var arr = new Array();
-
 var csv = "";
 
 
@@ -151,25 +150,50 @@ async function DownloadDataset() {
         }
 }
 
-function download(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-  
-    element.style.display = 'none';
-    document.body.appendChild(element);
-  
-    element.click();
-  
-    document.body.removeChild(element);
-  }
-
-setUp();
-async function setUp()
+function ChangeDownloadType()
 {
-    await ProduceIterations([Circle_Generator,SquareGenerator])
-    //await DownloadDataset("csv");
+    switch (mylist.selectedIndex)
+    {
+        case 0:
+            console.log("csv")
+            datasetDownloadType = "csv"
+            break;
+        case 1:
+            console.log("zip")
+            datasetDownloadType = "zip"
+            break;
+    }
+}
+function ChangeDatasetLength(event)
+{
+    console.log(event.srcElement.value);
+    datasetLength = event.srcElement.value;
+}
 
+function ChangeDatasetSize(event)
+{
+    console.log(event.srcElement.value);
+    ctx.canvas.width = event.srcElement.value;
+    ctx.canvas.height = event.srcElement.value;
+}
+
+
+SetUp()
+async function SetUp()
+{  
+
+    ox = canvas.width / 2;
+    oy = canvas.height / 2;
+
+
+    arr = new Array();
+    csv = "";
+
+
+
+    await ProduceIterations([Circle_Generator,SquareGenerator])
+    //await DownloadDataset();
+    console.log("done generating")
    // SquareGenerator();
 }
 

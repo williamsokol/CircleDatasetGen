@@ -51,13 +51,18 @@
         <div class="grid-container">
             
             <div class="grid-item">
+                Generate Dataset <br>
+                <button onclick="SetUp()">Generate</button>
+            </div>
+
+            <div class="grid-item">
                 Download Dataset <br>
                 <button onclick="DownloadDataset()">Download</button>
             </div>
 
             <div class="grid-item">
                 Change Download Type <br>
-                <select id="mylist" onchange="ChangeDownloadType()">
+                <select id="mylist" onchange="ChangeDownloadType(event)">
                     <option> .CSV </option>
                     <option> .ZIP </option>
                 </select>
@@ -65,13 +70,13 @@
 
             <div class="grid-item">
                 Change Dataset Length <br>
-                <input type="text" id="myText" value="10" onchange="loadSpeed()">
+                <input type="text" id="myText" value="10" onchange="ChangeDatasetLength(event)">
             </div>  
 
             <div class="grid-item">
                 Change Dataset dimensions <br>
-                <input type="text" id="myText" value="10" onchange="loadSpeed()"> width</input><br/>
-                <input type="text" id="myText" value="10" onchange="loadSpeed()"> length</input>
+                <input type="text" id="myText" value="500" onchange="ChangeDatasetSize(event)"> Pixels</input><br/>
+               
             </div>  
           
         </div>
